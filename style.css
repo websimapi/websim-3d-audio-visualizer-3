@@ -1,0 +1,39 @@
+body {
+  margin: 0;
+  overflow: hidden;
+  background: #000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.upload-container {
+  position: absolute;
+  z-index: 100;
+  top: 20px;
+}
+
+.upload-btn {
+  background: #2ecc71;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 30px;
+  cursor: pointer;
+  font-family: Arial, sans-serif;
+  transition: all 0.3s ease;
+}
+
+.upload-btn:hover {
+  background: #27ae60;
+  transform: scale(1.05);
+}
+
+#audioInput {
+  display: none;
+}
+
+canvas {
+  width: 100vw;
+  height: 100vh;
+}
