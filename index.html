@@ -1,18 +1,68 @@
-<html>
+<html lang="en">
 <head>
-  <title>3D Audio Visualizer</title>
-  <meta charset="UTF-8">
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trippy Tunnel Experience</title>
+    <style>
+        * { margin: 0; padding: 0; }
+        canvas { 
+            display: block;
+            width: 100vw;
+            height: 100vh;
+            background: #000;
+        }
+    </style>
 </head>
 <body>
-  <div class="upload-container">
-    <input type="file" id="audioInput" accept="audio/*">
-    <label for="audioInput" class="upload-btn">Choose Music File</label>
-  </div>
-  <canvas id="visualizer"></canvas>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.umd.js"></script>
-  <script src="app.js"></script>
+    <canvas id="glCanvas"></canvas>
+    <script type="module">
+        import { setupWebGL, getShader } from '/webgl-utils.js';
+
+        let mouseX = 0.5, mouseY = 0.5;
+        window.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX / window.innerWidth;
+            mouseY = e.clientY / window.innerHeight;
+        });
+
+        const canvas = document.getElementById('glCanvas');
+        const gl = canvas.getContext('webgl');
+        
+        const program = await setupWebGL(gl, {
+            vertexURL: './assets/trippy-tunnel.glsl',
+            fragmentURL: './assets/trippy-tunnel.glsl',
+            attribs: { a_position: 0 },
+            stride: 0
+        });
+
+        const vertices = new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]);
+        const buffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+        gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+
+        gl.useProgram(program);
+        const uTime = gl.getUniformLocation(program, 'u_time');
+        const uMouse = gl.getUniformLocation(program, 'u_mouse');
+        
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            gl.viewport(0, 0, canvas.width, canvas.height);
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        function animate(time) {
+            time *= 0.001; // Convert to seconds
+            
+            gl.uniform1f(uTime, time);
+            gl.uniform2f(uMouse, mouseX, mouseY);
+            
+            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+            requestAnimationFrame(animate);
+        }
+        
+        animate(0);
+    </script>
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516" integrity="sha512-8DS7rgIrAmghBFwoOTujcf6D9rXvH8xm8JQ1Ja01h9QX8EzXldiszufYa4IFfKdLUKTTrnSFXLDkUEOTrZQ8Qg==" data-cf-beacon='{"version":"2024.11.0","token":"4c6229722a6346bc8eb5cb0e5eae5d41","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 </body>
 </html>
